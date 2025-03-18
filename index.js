@@ -49,20 +49,7 @@ subMenuEl.style.top = "0";
 
 const topMenuLinks = document.querySelectorAll("a");
 
-// topMenuLinks.forEach((link) => {
-//   const anchor = document.createElement("a");
-//   anchor.setAttribute("href", link.href);
-//   anchor.textContent = link.text;
-//   subMenuEl.appendChild(anchor);
-//   if (link.subLinks) {
-//     link.subLinks.forEach((link) => {
-//       anchor.setAttribute("href", link.href);
-//       anchor.textContent = link.text;
-//       subMenuEl.appendChild(anchor);
-  //   }) 
-  // }
-  // console.log(topMenuLinks)
-// })
+
 topMenuEl.addEventListener("click", (event)=> {
   event.preventDefault()
   console.log(event.target.tagName)
@@ -86,4 +73,64 @@ topMenuEl.addEventListener("click", (event)=> {
     });}
 
   })
-  
+
+// Build the submenu
+function buildSubmenu(subLinks) {
+  subMenuEl.innerHTML = '';
+  subLinks.forEach(link => {
+    const a = document.createElement('a');
+    a.setAttribute('href', link.href);
+    a.textContent = link.text;
+    subMenuEl.appendChild(a);
+  });
+}
+
+
+// Toggle submenu functionality
+let activeLink = null;
+topMenuEl.addEventListener('click', (e) => {
+  e.preventDefault();
+  const clickedLink = e.target;
+  if (clickedLink.tagName !== 'A') return;
+
+  const linkText = clickedLink.textContent.toLowerCase();
+  const linkObj = menuLinks.find(link => link.text === linkText);
+
+  if (!linkObj) return;
+
+  if (activeLink !== clickedLink) {
+    activeLink?.classList.remove('active');
+    clickedLink.classList.add('active');
+    activeLink = clickedLink;
+
+    if (linkObj.subLinks) {
+      buildSubmenu(linkObj.subLinks);
+      subMenuEl.style.top = '100%';
+    } else {
+      subMenuEl.style.top = '0';
+    }
+  } else {
+    clickedLink.classList.remove('active');
+    subMenuEl.style.top = '0';
+    activeLink = null;
+  }
+});
+// Handle submenu clicks
+subMenuEl.addEventListener('click', (e) => {
+  e.preventDefault();
+  const clickedLink = e.target;
+  if (clickedLink.tagName !== 'A') return;
+
+  console.log(clickedLink.textContent); // Log to verify
+
+  // Hide submenu
+  subMenuEl.style.top = '0';
+
+  // Remove active class from all top menu links
+  document.querySelectorAll('#top-menu a').forEach(link => link.classList.remove('active'));
+
+  // Update main content
+  mainEl.innerHTML = `<h1>${clickedLink.textContent}</h1>`;
+
+  activeLink = null;
+});
